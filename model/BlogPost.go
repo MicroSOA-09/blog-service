@@ -18,30 +18,45 @@ const (
 )
 
 type BlogPost struct {
-	ID           uuid.UUID         `gorm:"primaryKey" json:"id,omitempty"`
-	AuthorID     int               `gorm:"not null"`
-	TourID       int               `gorm:"not null"`
-	Title        string            `gorm:"not null"`
-	Description  string            `gorm:"not null"`
-	CreationDate time.Time         `gorm:"not null"`
-	Images       []string          `gorm:"type:jsonb;default:'[]';serializer:json" json:"images"`
-	Comments     []BlogPostComment `gorm:"type:jsonb;default:'[]';serializer:json" json:"comments"`
-	Ratings      []BlogPostRating  `gorm:"type:jsonb;default:'[]';serializer:json" json:"ratings"`
-	Status       BlogPostStatus    `gorm:"not null"`
+	ID             uuid.UUID         `gorm:"primaryKey" json:"id,omitempty"`
+	AuthorID       int               `gorm:"not null"`
+	AuthorUsername string            `gorm:"-" json:"authorUsername"`
+	TourID         int               `gorm:"not null"`
+	Title          string            `gorm:"not null" json:"title"`
+	Description    string            `gorm:"not null" json:"description"`
+	CreationDate   time.Time         `gorm:"not null" json:"creationDate"`
+	Images         []string          `gorm:"type:jsonb;default:'[]';serializer:json" json:"imageURLs"`
+	Comments       []BlogPostComment `gorm:"type:jsonb;default:'[]';serializer:json" json:"comments"`
+	Ratings        []BlogPostRating  `gorm:"type:jsonb;default:'[]';serializer:json" json:"ratings"`
+	Status         BlogPostStatus    `gorm:"not null" json:"status"`
+}
+
+type BlogPostComment struct {
+	AuthorID        int       `json:number`
+	AuthorUsername  string    `json:"authorUsername`
+	Text            string    `json:"text"`
+	CreationTime    time.Time `json:"creationTime"`
+	LastUpdatedTime time.Time `json:"lastUpdatedTime"`
+}
+
+type BlogPostRating struct {
+	AuthorID       int       `json:number`
+	AuthorUsername string    `json:text`
+	CreationTime   time.Time `json:"creation_time"`
+	IsPositive     bool      `json:"is_positive"`
+}
+
+type User struct {
+	ID       int    `json:"Id"`
+	Username string `json:"Username"`
+}
+
+type PagedResult[T any] struct {
+	Results    []T `json:"results"`
+	TotalCount int `json:"totalCount"`
 }
 
 func (blogPost *BlogPost) BeforeCreate(scope *gorm.DB) error {
 	blogPost.ID = uuid.New()
 	return nil
-}
-
-type BlogPostComment struct {
-	Text            string    `json:"text"`
-	CreationTime    time.Time `json:"creation_time"`
-	LastUpdatedTime time.Time `json:"last_updated_time"`
-}
-
-type BlogPostRating struct {
-	CreationTime time.Time `json:"creation_time"`
-	IsPositive   bool      `json:"is_positive"`
 }

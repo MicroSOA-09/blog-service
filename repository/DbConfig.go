@@ -10,7 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-
 func getEnv(key, fallback string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value

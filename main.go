@@ -17,8 +17,8 @@ func startService(handler *handler.BlogPostHandler) {
 	router.HandleFunc("/api/blog/blogpost/{id}", handler.Get).Methods("GET")
 	router.HandleFunc("/api/blog/blogpost", handler.Create).Methods("POST")
 
-	println("Server listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	println("Server listening on :80")
+	log.Fatal(http.ListenAndServe(":80", router))
 }
 
 func main() {
