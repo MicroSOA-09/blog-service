@@ -3,7 +3,10 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/MicroSOA-09/blog-service/model"
 	"github.com/MicroSOA-09/blog-service/service"
@@ -12,20 +15,21 @@ import (
 
 type BlogPostHandler struct {
 	BlogPostService *service.BlogPostService
+	Logger          *log.Logger
 }
 
 func (handler *BlogPostHandler) GetAll(writter http.ResponseWriter, req *http.Request) {
 	blogs, err := handler.BlogPostService.FindAll()
 	writter.Header().Set("Content-Type", "application/json")
 	if err != nil {
+		handler.Logger.Printf("Error while fetching blogs")
 		writter.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	for i := 0; i < len(blogs); i++ {
-		err = populateBlog(&blogs[i], handler)
+		err = handler.populateBlog(&blogs[i])
 		if err != nil {
-			println("Error while fetching Users")
 			writter.WriteHeader(http.StatusExpectationFailed)
 			return
 		}
@@ -47,9 +51,9 @@ func (handler *BlogPostHandler) Get(writter http.ResponseWriter, req *http.Reque
 		writter.WriteHeader(http.StatusNotFound)
 		return
 	}
-	err = populateBlog(blog, handler)
+	err = handler.populateBlog(blog)
 	if err != nil {
-		println("Error while fetching Users")
+		handler.Logger.Printf("Error  while fetching Users")
 		writter.WriteHeader(http.StatusExpectationFailed)
 		return
 	}
@@ -58,18 +62,17 @@ func (handler *BlogPostHandler) Get(writter http.ResponseWriter, req *http.Reque
 }
 
 func (handler *BlogPostHandler) Create(writter http.ResponseWriter, req *http.Request) {
-	println("KREIRANJE")
 	var blog model.BlogPost
 	err := json.NewDecoder(req.Body).Decode(&blog)
 	if err != nil {
-		println("Error while parsing JSON")
+		handler.Logger.Printf("Error while parsing JSON")
 		writter.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	println(blog.Title)
 	err = handler.BlogPostService.Create(&blog)
 	if err != nil {
-		println("Error while creating a new blog")
+		handler.Logger.Printf("Error while creating a new blog")
 		writter.WriteHeader(http.StatusExpectationFailed)
 		return
 	}
@@ -77,11 +80,11 @@ func (handler *BlogPostHandler) Create(writter http.ResponseWriter, req *http.Re
 	writter.Header().Set("Content-Type", "application/json")
 }
 
-func populateBlog(blog *model.BlogPost, handler *BlogPostHandler) error {
+func (handler *BlogPostHandler) populateBlog(blog *model.BlogPost) error {
 	userIds := handler.BlogPostService.GetUserIds(blog)
 	if len(userIds) > 0 {
-		param := handler.BlogPostService.IdsToStr(userIds)
-		users, err := fetchUsersFromStakeholders(param)
+		param := strings.Join(userIds, ",")
+		users, err := handler.fetchUsersFromStakeholders(param)
 		if err != nil {
 			return err
 		}
@@ -89,10 +92,11 @@ func populateBlog(blog *model.BlogPost, handler *BlogPostHandler) error {
 	}
 	return nil
 }
-func fetchUsersFromStakeholders(param string) (map[int]string, error) {
-	resp, err := http.Get(fmt.Sprintf("http://explorer:80/api/user/getUsernames/%s", param))
+func (handler *BlogPostHandler) fetchUsersFromStakeholders(param string) (map[string]string, error) {
+	userServiceURL := os.Getenv("USER_SERVICE_URL")
+	resp, err := http.Get(fmt.Sprintf("http://%s/api/user/getUsernames/%s", userServiceURL, param))
 	if err != nil {
-		println("Error with http request")
+		handler.Logger.Printf("Error with http request")
 		return nil, err
 	}
 
@@ -100,11 +104,11 @@ func fetchUsersFromStakeholders(param string) (map[int]string, error) {
 
 	var response model.PagedResult[model.User]
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		println("Error with mapping JSON to Response:", err.Error())
+		handler.Logger.Printf("Error with mapping JSON to Response: %v", err.Error())
 		return nil, err
 	}
 
-	userMap := make(map[int]string)
+	userMap := make(map[string]string)
 	for _, user := range response.Results {
 		userMap[user.ID] = user.Username
 	}

@@ -2,8 +2,6 @@ package service
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/MicroSOA-09/blog-service/model"
 	"github.com/MicroSOA-09/blog-service/repository"
@@ -39,8 +37,8 @@ func (service *BlogPostService) Create(blog *model.BlogPost) error {
 	return nil
 }
 
-func (service *BlogPostService) GetUserIds(blog *model.BlogPost) []int {
-	userIds := []int{}
+func (service *BlogPostService) GetUserIds(blog *model.BlogPost) []string {
+	userIds := []string{}
 	userIds = append(userIds, blog.AuthorID)
 
 	for i := 0; i < len(blog.Comments); i += 1 {
@@ -51,15 +49,8 @@ func (service *BlogPostService) GetUserIds(blog *model.BlogPost) []int {
 	}
 	return userIds
 }
-func (service *BlogPostService) IdsToStr(ids []int) string {
-	strIds := make([]string, len(ids))
-	for i, id := range ids {
-		strIds[i] = strconv.Itoa(id)
-	}
-	return strings.Join(strIds, ",")
-}
 
-func (service *BlogPostService) PopulateBlog(blog *model.BlogPost, users map[int]string) {
+func (service *BlogPostService) PopulateBlog(blog *model.BlogPost, users map[string]string) {
 	blog.AuthorUsername = users[blog.AuthorID]
 	for i := 0; i < len(blog.Comments); i += 1 {
 		blog.Comments[i].AuthorUsername = users[blog.Comments[i].AuthorID]

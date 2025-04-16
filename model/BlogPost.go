@@ -19,7 +19,7 @@ const (
 
 type BlogPost struct {
 	ID             uuid.UUID         `gorm:"primaryKey" json:"id,omitempty"`
-	AuthorID       int               `gorm:"not null"`
+	AuthorID       string            `gorm:"not null"`
 	AuthorUsername string            `gorm:"-" json:"authorUsername"`
 	TourID         int               `gorm:"not null"`
 	Title          string            `gorm:"not null" json:"title"`
@@ -32,7 +32,7 @@ type BlogPost struct {
 }
 
 type BlogPostComment struct {
-	AuthorID        int       `json:number`
+	AuthorID        string    `json:number`
 	AuthorUsername  string    `json:"authorUsername`
 	Text            string    `json:"text"`
 	CreationTime    time.Time `json:"creationTime"`
@@ -40,14 +40,14 @@ type BlogPostComment struct {
 }
 
 type BlogPostRating struct {
-	AuthorID       int       `json:number`
+	AuthorID       string    `json:number`
 	AuthorUsername string    `json:text`
 	CreationTime   time.Time `json:"creation_time"`
 	IsPositive     bool      `json:"is_positive"`
 }
 
 type User struct {
-	ID       int    `json:"Id"`
+	ID       string `json:"Id"`
 	Username string `json:"Username"`
 }
 

@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/MicroSOA-09/blog-service/model"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -18,11 +17,6 @@ func getEnv(key, fallback string) string {
 }
 
 func InitDB() *gorm.DB {
-
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Warning: Could not load .env file, using defaults:", err)
-	}
 
 	server := getEnv("DATABASE_HOST", "localhost")
 	port := getEnv("DATABASE_PORT", "5432")
