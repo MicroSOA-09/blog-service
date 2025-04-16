@@ -33,7 +33,7 @@ type BlogPost struct {
 
 type BlogPostComment struct {
 	AuthorID        string    `json:number`
-	AuthorUsername  string    `json:"authorUsername`
+	AuthorUsername  string    `json:"authorUsername"`
 	Text            string    `json:"text"`
 	CreationTime    time.Time `json:"creationTime"`
 	LastUpdatedTime time.Time `json:"lastUpdatedTime"`
@@ -47,8 +47,8 @@ type BlogPostRating struct {
 }
 
 type User struct {
-	ID       string `json:"Id"`
-	Username string `json:"Username"`
+	ID       string `json:id"`
+	Username string `json:"username"`
 }
 
 type PagedResult[T any] struct {

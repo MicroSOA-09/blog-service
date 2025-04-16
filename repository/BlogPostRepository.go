@@ -26,7 +26,7 @@ func (repo *BlogPostRepository) FindById(id string) (model.BlogPost, error) {
 	blog := model.BlogPost{}
 	dbResult := repo.Db.First(&blog, "id = ?", id)
 	if dbResult != nil {
-		repo.Logger.Printf("Error while loading blog from a DB")
+		repo.Logger.Printf("Error while loading blog from a DB %v", dbResult.Error)
 		return blog, dbResult.Error
 	}
 	return blog, nil
@@ -35,7 +35,7 @@ func (repo *BlogPostRepository) FindById(id string) (model.BlogPost, error) {
 func (repo *BlogPostRepository) CreateBlogPost(blog *model.BlogPost) error {
 	dbResult := repo.Db.Create(blog)
 	if dbResult != nil {
-		repo.Logger.Printf("Error while creating blog")
+		repo.Logger.Printf("Error while creating blog %v", dbResult.Error)
 		return dbResult.Error
 	}
 	println("Rows affected: ", dbResult.RowsAffected)

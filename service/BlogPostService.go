@@ -53,7 +53,10 @@ func (service *BlogPostService) GetUserIds(blog *model.BlogPost) []string {
 func (service *BlogPostService) PopulateBlog(blog *model.BlogPost, users map[string]string) {
 	blog.AuthorUsername = users[blog.AuthorID]
 	for i := 0; i < len(blog.Comments); i += 1 {
+		println(blog.Comments[i].AuthorID)
+		println(users[blog.Comments[i].AuthorID])
 		blog.Comments[i].AuthorUsername = users[blog.Comments[i].AuthorID]
+		println(blog.Comments[i].AuthorUsername)
 	}
 	for i := 0; i < len(blog.Ratings); i += 1 {
 		blog.Ratings[i].AuthorUsername = users[blog.Ratings[i].AuthorID]

@@ -65,7 +65,7 @@ func (handler *BlogPostHandler) Create(writter http.ResponseWriter, req *http.Re
 	var blog model.BlogPost
 	err := json.NewDecoder(req.Body).Decode(&blog)
 	if err != nil {
-		handler.Logger.Printf("Error while parsing JSON")
+		handler.Logger.Printf("Error while parsing JSON: %v", err.Error())
 		writter.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -94,6 +94,7 @@ func (handler *BlogPostHandler) populateBlog(blog *model.BlogPost) error {
 }
 func (handler *BlogPostHandler) fetchUsersFromStakeholders(param string) (map[string]string, error) {
 	userServiceURL := os.Getenv("USER_SERVICE_URL")
+	handler.Logger.Printf("Requesting users: %v from %v", param, userServiceURL)
 	resp, err := http.Get(fmt.Sprintf("http://%s/api/user/getUsernames/%s", userServiceURL, param))
 	if err != nil {
 		handler.Logger.Printf("Error with http request")
@@ -110,6 +111,7 @@ func (handler *BlogPostHandler) fetchUsersFromStakeholders(param string) (map[st
 
 	userMap := make(map[string]string)
 	for _, user := range response.Results {
+		println(user.ID, user.Username)
 		userMap[user.ID] = user.Username
 	}
 	return userMap, nil
